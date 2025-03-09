@@ -2,7 +2,7 @@ package utils
 
 type FilterError interface {
 	ErrEmptyList() string
-	ErrNotFound() string
+	ErrNotFound(params ...any) string
 	// ErrNotFound(T any) string
 }
 
