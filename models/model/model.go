@@ -16,60 +16,57 @@ type AIModel struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func (m AIModel) ErrEmptyList() string {
-	return "No models subscribed!"
+func (m AIModel) ErrEmptyList() error {
+	return fmt.Errorf("no models subscribed")
 }
 
-func (m AIModel) ErrNotFound(params ...any) string {
+func (m AIModel) ErrNotFound(params ...any) error {
 	if len(params) == 0 {
-		return "No such model found!"
+		return fmt.Errorf("no such model found")
 	} else {
-		return fmt.Sprintf("No such model found with %v", params[0])
+		return fmt.Errorf("no such model found with %v", params[0])
 	}
 }
 
 type AIModels []AIModel
 
-func (m AIModels) ErrNotFound(params ...any) string {
+func (m AIModels) ErrNotFound(params ...any) error {
 	if len(params) == 0 {
-		return "No such model found!"
+		return fmt.Errorf("no such model found")
 	} else {
-		return fmt.Sprintf("No models found with the given filter criteria - %v", params[0])
+		return fmt.Errorf("no models found with the given filter criteria - %v", params[0])
 	}
 }
 
-func (m AIModels) FindByName(modelName string) (AIModel, string) {
+func (m AIModels) FindByName(modelName string) (AIModel, error) {
 	filteredModels, err := utils.Filter(m, func(model AIModel) bool {
 		return strings.Contains(strings.ToLower(model.ModelName), strings.ToLower(modelName))
 	})
-	if err == "" {
-		return utils.First(filteredModels)
-	} else {
+	if err != nil {
 		var model AIModel
 		return model, model.ErrNotFound(modelName)
 	}
+	return utils.First(filteredModels)
 }
 
-func (m AIModels) FindByUUID(uuid string) (AIModel, string) {
+func (m AIModels) FindByUUID(uuid string) (AIModel, error) {
 	filteredModels, err := utils.Filter(m, func(model AIModel) bool {
 		return strings.Contains(strings.ToLower(model.ModelID.String()), strings.ToLower(uuid))
 	})
-	if err == "" {
-		return utils.First(filteredModels)
-	} else {
+	if err != nil {
 		var model AIModel
 		return model, model.ErrNotFound(uuid)
 	}
+	return utils.First(filteredModels)
 }
 
-func (m AIModels) FindByUser(userID string) ([]AIModel, string) {
+func (m AIModels) FindByUser(userID string) ([]AIModel, error) {
 	filteredModels, err := utils.Filter(m, func(model AIModel) bool {
 		return strings.Contains(strings.ToLower(model.CreatedBy), strings.ToLower(userID))
 	})
-	if err == "" {
-		return filteredModels, err
-	} else {
+	if err != nil {
 		var m AIModels
 		return m, m.ErrNotFound(userID)
 	}
+	return filteredModels, err
 }

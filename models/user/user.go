@@ -10,45 +10,83 @@ import (
 )
 
 type User struct {
-	UserID    uuid.UUID `json:"userID"`
-	UserName  string    `json:"userName"`
-	CreatedAt time.Time `json:"createdAt"`
+	UserID      uuid.UUID `json:"userID"`
+	FirstName   string    `json:"firstName" binding:"required,alpha,min=2,max=18"`
+	LastName    string    `json:"lastName" binding:"required,alpha,min=2,max=18"`
+	FullName    string    `json:"fullName"`
+	UserName    string    `json:"userName" binding:"required,alphanum,min=5,max=18"`
+	EmailID     string    `json:"emailID" binding:"required,email"`
+	Phone       string    `json:"phone" binding:"required,e164"`
+	CountryCode string    `json:"countryCode" binding:"required,iso3166_1_alpha2"`
+	CreatedAt   time.Time `json:"createdAt"`
+	ModifiedAt  time.Time `json:"modifiedAt"`
 }
 
-func (u User) ErrEmptyList() string {
-	return "No users registered!"
+type UserUpdate struct {
+	UserID      uuid.UUID `json:"userID" binding:"required"`
+	FirstName   string    `json:"firstName" binding:"required,alpha,min=2,max=18"`
+	LastName    string    `json:"lastName" binding:"required,alpha,min=2,max=18"`
+	EmailID     string    `json:"emailID" binding:"required,email"`
+	Phone       string    `json:"phone" binding:"required,e164"`
+	CountryCode string    `json:"countryCode" binding:"required,iso3166_1_alpha2"`
+	ModifiedAt  time.Time `json:"modifiedAt"`
 }
 
-func (u User) ErrNotFound(params ...any) string {
+func (u User) ErrEmptyList() error {
+	return fmt.Errorf("no users registered")
+}
+
+func (u User) ErrNotFound(params ...any) error {
 	if len(params) == 0 {
-		return "No such user found!"
+		return fmt.Errorf("no such user found")
 	} else {
-		return fmt.Sprintf("No such user found with %v", params[0])
+		return fmt.Errorf("no such user found with %v", params[0])
 	}
 }
 
 type Users []User
 
-func (usrs Users) FindByName(userName string) (User, string) {
-	filteredUsers, err := utils.Filter(usrs, func(usr User) bool {
-		return strings.Contains(strings.ToLower(usr.UserName), strings.ToLower(userName))
-	})
-	if err == "" {
-		return utils.First(filteredUsers)
+func (u Users) ErrEmptyList() error {
+	return fmt.Errorf("no users registered")
+}
+
+func (u Users) ErrNotFound(params ...any) error {
+	if len(params) == 0 {
+		return fmt.Errorf("no such user found")
 	} else {
-		var userErr User
-		return userErr, userErr.ErrNotFound(userName)
+		return fmt.Errorf("no such user found with %v", params[0])
 	}
 }
 
-func (usrs Users) FindByUUID(uuid string) (User, string) {
+func (usrs Users) FindByName(name string) (User, error) {
+	filteredUsers, err := utils.Filter(usrs, func(usr User) bool {
+		return strings.Contains(strings.ToLower(usr.FullName), strings.ToLower(name))
+	})
+	if err != nil {
+		var userErr User
+		return userErr, userErr.ErrNotFound(name)
+	}
+	return utils.First(filteredUsers)
+}
+
+func (usrs Users) FindByUserName(userName string) (User, error) {
+	filteredUsers, err := utils.Filter(usrs, func(usr User) bool {
+		return strings.Contains(strings.ToLower(usr.UserName), strings.ToLower(userName))
+	})
+	if err != nil {
+		var userErr User
+		return userErr, userErr.ErrNotFound(userName)
+	}
+	return utils.First(filteredUsers)
+}
+
+func (usrs Users) FindByUUID(uuid string) (User, error) {
 	filteredUsers, err := utils.Filter(usrs, func(usr User) bool {
 		return strings.Contains(strings.ToLower(usr.UserID.String()), strings.ToLower(uuid))
 	})
-	if err == "" {
-		return utils.First(filteredUsers)
-	} else {
+	if err != nil {
 		var userErr User
 		return userErr, userErr.ErrNotFound(uuid)
 	}
+	return utils.First(filteredUsers)
 }

@@ -17,7 +17,7 @@ func GetAllModels(c *gin.Context) {
 func GetModelByID(c *gin.Context) {
 	id := c.Param("id")
 	model, err := data.SubscribedModels.FindByUUID(id)
-	if err == "" {
+	if err == nil {
 		c.IndentedJSON(http.StatusOK, model)
 	} else {
 		c.JSON(http.StatusNotFound, err)
@@ -28,7 +28,7 @@ func GetModelByID(c *gin.Context) {
 func GetModelByName(c *gin.Context) {
 	name := c.Param("name")
 	model, err := data.SubscribedModels.FindByName(name)
-	if err == "" {
+	if err == nil {
 		c.IndentedJSON(http.StatusOK, model)
 	} else {
 		c.JSON(http.StatusNotFound, err)
@@ -39,9 +39,9 @@ func GetModelByName(c *gin.Context) {
 func GetModelsByUsername(c *gin.Context) {
 	username := c.Param("username")
 	user, err := data.RegisteredUsers.FindByName(username)
-	if err == "" {
+	if err == nil {
 		model, err := data.SubscribedModels.FindByUser(user.UserID.String())
-		if err == "" {
+		if err == nil {
 			c.IndentedJSON(http.StatusOK, model)
 		} else {
 			c.JSON(http.StatusNotFound, err)
