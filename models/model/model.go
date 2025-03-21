@@ -10,10 +10,17 @@ import (
 )
 
 type AIModel struct {
-	ModelID   uuid.UUID `json:"id"`
-	ModelName string    `json:"name"`
-	CreatedBy string    `json:"created_by"`
-	CreatedAt time.Time `json:"created_at"`
+	ModelID    uuid.UUID `json:"modelID"`
+	ModelName  string    `json:"modelName" binding:"required,alphanum,min=2,max=18"`
+	CreatedBy  uuid.UUID `json:"createdBy" binding:"required"`
+	CreatedAt  time.Time `json:"createdAt"`
+	ModifiedAt time.Time `json:"modifiedAt"`
+}
+
+type AIModelUpdate struct {
+	ModelID    uuid.UUID `json:"modelID" binding:"required"`
+	ModelName  string    `json:"modelName" binding:"required,alphanum,min=2,max=18"`
+	ModifiedAt time.Time `json:"modifiedAt"`
 }
 
 func (m AIModel) ErrEmptyList() error {
@@ -29,6 +36,10 @@ func (m AIModel) ErrNotFound(params ...any) error {
 }
 
 type AIModels []AIModel
+
+func (m AIModels) ErrEmptyList() error {
+	return fmt.Errorf("no models subscribed")
+}
 
 func (m AIModels) ErrNotFound(params ...any) error {
 	if len(params) == 0 {
@@ -62,7 +73,7 @@ func (m AIModels) FindByUUID(uuid string) (AIModel, error) {
 
 func (m AIModels) FindByUser(userID string) ([]AIModel, error) {
 	filteredModels, err := utils.Filter(m, func(model AIModel) bool {
-		return strings.Contains(strings.ToLower(model.CreatedBy), strings.ToLower(userID))
+		return strings.Contains(strings.ToLower(model.CreatedBy.String()), strings.ToLower(userID))
 	})
 	if err != nil {
 		var m AIModels

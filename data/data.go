@@ -27,9 +27,9 @@ var user2, _ = RegisteredUsers.FindByName("Joe")
 //var user3, _ = RegisteredUsers.FindByName("Harry")
 
 var SubscribedModels = model.AIModels{
-	{ModelID: uuid.New(), ModelName: "pickachu_1", CreatedBy: user1.UserID.String(), CreatedAt: time.Now()},
-	{ModelID: uuid.New(), ModelName: "bulbasaur_1", CreatedBy: user2.UserID.String(), CreatedAt: time.Now()},
-	{ModelID: uuid.New(), ModelName: "bulbasaur_2", CreatedBy: user2.UserID.String(), CreatedAt: time.Now()},
+	{ModelID: uuid.New(), ModelName: "pickachu_1", CreatedBy: user1.UserID, CreatedAt: time.Now()},
+	{ModelID: uuid.New(), ModelName: "bulbasaur_1", CreatedBy: user2.UserID, CreatedAt: time.Now()},
+	{ModelID: uuid.New(), ModelName: "bulbasaur_2", CreatedBy: user2.UserID, CreatedAt: time.Now()},
 }
 
 func MongoDBInit() *mongo.Client {
@@ -101,7 +101,7 @@ func EditOne[T any](doc T, dbName string, collName string, filter bson.D, update
 		return updateErr
 	}
 	if res.MatchedCount == 0 {
-		return fmt.Errorf("no such user")
+		return fmt.Errorf("no such %s", collName)
 	}
 	if res.MatchedCount > 0 && res.ModifiedCount == 0 {
 		return fmt.Errorf("internal server error")
