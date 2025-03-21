@@ -16,6 +16,8 @@ const UserCollection = "users"
 const ModelCollection = "models"
 const APIDomain = "localhost"
 const APIPort = "8080"
+const APISecretPath = "E:\\Learning\notes\\openssl-secret.txt"
+const TokenHourLifespan = "1"
 
 var DBConnectionStringWithTLS = fmt.Sprintf("%s/?tls=%s&tlsCAFile=%s&tlsCertificateKeyFile=%s", DBDomainURI, strconv.FormatBool(true), url.QueryEscape(TLSCAFilePath), url.QueryEscape(TLSCertificateKeyFilePath))
 var DBConnectionString = fmt.Sprintf("%s/?tls=%s", DBDomainURI, strconv.FormatBool(false))

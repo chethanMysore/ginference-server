@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"example/ginference-server/middlewares"
 	"example/ginference-server/routes/modelroutes"
 	"example/ginference-server/routes/userroutes"
 
@@ -16,6 +17,7 @@ func Init() *gin.Engine {
 
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := router.Group("/api/v1")
+	v1.Use(middlewares.JWTAuthMiddleware())
 	{
 		// User routes '/users*'
 		usr := v1.Group("/users")
