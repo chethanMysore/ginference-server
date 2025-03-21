@@ -17,7 +17,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-// GET (/models)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Get all models
+// @Schemes
+// @Description Find all AI Models subscribed to the ginference-server
+// @Tags AIModels
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.AIModel
+// @Router /models [get]
 func GetAllModels(c *gin.Context) {
 	filter := bson.D{{}}
 	findOptions := options.Find()
@@ -34,7 +44,18 @@ func GetAllModels(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, subscribedModels)
 }
 
-// GET (/models/id/:id)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Search model by modelID
+// @Schemes
+// @Description Find an AI Model using the given modelID
+// @Tags AIModels
+// @Param id path string true "Model ID" minlength(36) maxlength(36)
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.AIModel
+// @Router /models/id/{id} [get]
 func GetModelByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -66,7 +87,18 @@ func GetModelByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, mod)
 }
 
-// GET (/models/name/:name)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Search model by model name
+// @Schemes
+// @Description Find AI Models matching the given model name
+// @Tags AIModels
+// @Param name path string true "Model Name" minlength(2) maxlength(18)
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.AIModel
+// @Router /models/name/{name} [get]
 func GetModelByName(c *gin.Context) {
 	modelName := c.Param("name")
 	if modelName == "" {
@@ -89,7 +121,18 @@ func GetModelByName(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, subscribedModels)
 }
 
-// GET (/models/username/:username)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Search model by username
+// @Schemes
+// @Description Find AI Models created by the user with the given username
+// @Tags AIModels
+// @Param username path string true "Username" minlength(5) maxlength(18)
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.AIModel
+// @Router /models/username/{username} [get]
 func GetModelsByUsername(c *gin.Context) {
 	userName := c.Param("username")
 	if userName == "" {
@@ -127,9 +170,20 @@ func GetModelsByUsername(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, subscribedModels)
 }
 
-// POST (/models/create)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Create new model
+// @Schemes
+// @Description Subscribe new AIModel for inference
+// @Tags AIModels
+// @Param AIModel body model.AIModelCreate true "Create AIModel"
+// @Accept json
+// @Produce json
+// @Success 201 {object} model.AIModel
+// @Router /models/create [post]
 func CreateNewModel(c *gin.Context) {
-	var newModel model.AIModel
+	var newModel model.AIModelCreate
 	if err := c.BindJSON(&newModel); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
@@ -151,26 +205,56 @@ func CreateNewModel(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	newModel.ModelID = uuid.New()
-	newModel.CreatedAt = time.Now()
-	newModel.ModifiedAt = time.Now()
-	if err := data.Create(newModel, devconfig.DBName, devconfig.ModelCollection); err != nil {
+	var mod model.AIModel
+	mod.ModelID = uuid.New()
+	mod.CreatedAt = time.Now()
+	mod.ModifiedAt = time.Now()
+	mod.ModelName = newModel.ModelName
+	mod.CreatedBy = newModel.CreatedBy
+	if err := data.Create(mod, devconfig.DBName, devconfig.ModelCollection); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, newModel)
+	c.IndentedJSON(http.StatusCreated, mod)
 }
 
-// PUT (/models/edit)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Edit a model
+// @Schemes
+// @Description Update a subscribed AIModel's details
+// @Tags AIModels
+// @Param AIModel body model.AIModelUpdate true "Update AIModel"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.AIModel
+// @Router /models/edit [put]
 func EditModel(c *gin.Context) {
-	var mod model.AIModelUpdate
-	if err := c.BindJSON(&mod); err != nil {
+	var modUpdate model.AIModelUpdate
+	if err := c.BindJSON(&modUpdate); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	filter := bson.D{{Key: "modelid", Value: mod.ModelID}}
+	filter := bson.D{{Key: "modelid", Value: modUpdate.ModelID}}
+	findOptions := options.Find()
+	var subscribedModels model.AIModels
+	subscribedModels, err := data.Find(subscribedModels, devconfig.DBName, devconfig.ModelCollection, filter, findOptions)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if len(subscribedModels) == 0 {
+		c.IndentedJSON(http.StatusNotFound, subscribedModels.ErrNotFound(modUpdate.ModelID).Error())
+		return
+	}
+	mod, err := utils.First(subscribedModels)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 	updateOptions := options.UpdateOne().SetUpsert(false)
+	mod.ModelName = modUpdate.ModelName
 	mod.ModifiedAt = time.Now()
 	if err := data.EditOne(mod, devconfig.DBName, devconfig.ModelCollection, filter, updateOptions); err != nil {
 		c.IndentedJSON(http.StatusConflict, err.Error())

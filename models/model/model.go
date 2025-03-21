@@ -17,10 +17,14 @@ type AIModel struct {
 	ModifiedAt time.Time `json:"modifiedAt"`
 }
 
+type AIModelCreate struct {
+	ModelName string    `json:"modelName" binding:"required,alphanum,min=2,max=18"`
+	CreatedBy uuid.UUID `json:"createdBy" binding:"required"`
+}
+
 type AIModelUpdate struct {
-	ModelID    uuid.UUID `json:"modelID" binding:"required"`
-	ModelName  string    `json:"modelName" binding:"required,alphanum,min=2,max=18"`
-	ModifiedAt time.Time `json:"modifiedAt"`
+	ModelID   uuid.UUID `json:"modelID" binding:"required"`
+	ModelName string    `json:"modelName" binding:"required,alphanum,min=2,max=18"`
 }
 
 func (m AIModel) ErrEmptyList() error {

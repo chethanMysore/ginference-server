@@ -1,0 +1,421 @@
+basePath: /api/v1
+definitions:
+  model.AIModel:
+    properties:
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      modelID:
+        type: string
+      modelName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      modifiedAt:
+        type: string
+    required:
+    - createdBy
+    - modelName
+    type: object
+  model.AIModelCreate:
+    properties:
+      createdBy:
+        type: string
+      modelName:
+        maxLength: 18
+        minLength: 2
+        type: string
+    required:
+    - createdBy
+    - modelName
+    type: object
+  model.AIModelUpdate:
+    properties:
+      modelID:
+        type: string
+      modelName:
+        maxLength: 18
+        minLength: 2
+        type: string
+    required:
+    - modelID
+    - modelName
+    type: object
+  user.User:
+    properties:
+      countryCode:
+        type: string
+      createdAt:
+        type: string
+      emailID:
+        type: string
+      firstName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      fullName:
+        type: string
+      lastName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      modifiedAt:
+        type: string
+      phone:
+        type: string
+      userID:
+        type: string
+      userName:
+        maxLength: 18
+        minLength: 5
+        type: string
+    required:
+    - countryCode
+    - emailID
+    - firstName
+    - lastName
+    - phone
+    - userName
+    type: object
+  user.UserCreate:
+    properties:
+      countryCode:
+        type: string
+      emailID:
+        type: string
+      firstName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      lastName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      userName:
+        maxLength: 18
+        minLength: 5
+        type: string
+    required:
+    - countryCode
+    - emailID
+    - firstName
+    - lastName
+    - phone
+    - userName
+    type: object
+  user.UserUpdate:
+    properties:
+      countryCode:
+        type: string
+      emailID:
+        type: string
+      firstName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      lastName:
+        maxLength: 18
+        minLength: 2
+        type: string
+      phone:
+        type: string
+      userID:
+        type: string
+    required:
+    - countryCode
+    - emailID
+    - firstName
+    - lastName
+    - phone
+    - userID
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: willishardrock94@gmail.com
+    name: chethanMysore
+    url: https://chethanmysore.github.io/portfolio/#contact
+  description: This is a GO REST server for sentix inference.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger ginference-server API
+  version: "1.0"
+paths:
+  /models:
+    get:
+      consumes:
+      - application/json
+      description: Find all AI Models subscribed to the ginference-server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.AIModel'
+            type: array
+      summary: Get all models
+      tags:
+      - AIModels
+  /models/create:
+    post:
+      consumes:
+      - application/json
+      description: Subscribe new AIModel for inference
+      parameters:
+      - description: Create AIModel
+        in: body
+        name: AIModel
+        required: true
+        schema:
+          $ref: '#/definitions/model.AIModelCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.AIModel'
+      summary: Create new model
+      tags:
+      - AIModels
+  /models/edit:
+    put:
+      consumes:
+      - application/json
+      description: Update a subscribed AIModel's details
+      parameters:
+      - description: Update AIModel
+        in: body
+        name: AIModel
+        required: true
+        schema:
+          $ref: '#/definitions/model.AIModelUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AIModel'
+      summary: Edit a model
+      tags:
+      - AIModels
+  /models/id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find an AI Model using the given modelID
+      parameters:
+      - description: Model ID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AIModel'
+      summary: Search model by modelID
+      tags:
+      - AIModels
+  /models/name/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Find AI Models matching the given model name
+      parameters:
+      - description: Model Name
+        in: path
+        maxLength: 18
+        minLength: 2
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.AIModel'
+            type: array
+      summary: Search model by model name
+      tags:
+      - AIModels
+  /models/username/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Find AI Models created by the user with the given username
+      parameters:
+      - description: Username
+        in: path
+        maxLength: 18
+        minLength: 5
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.AIModel'
+            type: array
+      summary: Search model by username
+      tags:
+      - AIModels
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Find all users registered with the ginference-server
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.User'
+            type: array
+      summary: Get all users
+      tags:
+      - Users
+  /users/create:
+    post:
+      consumes:
+      - application/json
+      description: Register new user for inference
+      parameters:
+      - description: Create User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.User'
+      summary: Create new user
+      tags:
+      - Users
+  /users/edit:
+    put:
+      consumes:
+      - application/json
+      description: Update a registered User's details
+      parameters:
+      - description: Update User
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+      summary: Edit a user
+      tags:
+      - Users
+  /users/id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find the user created with the given ID
+      parameters:
+      - description: User ID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+      summary: Search user by ID
+      tags:
+      - Users
+  /users/name/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Find the users created with the given name
+      parameters:
+      - description: Name
+        in: path
+        maxLength: 18
+        minLength: 2
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.User'
+            type: array
+      summary: Search users by name
+      tags:
+      - Users
+  /users/username/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Find the user created with the given username
+      parameters:
+      - description: Username
+        in: path
+        maxLength: 18
+        minLength: 5
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+      summary: Search user by username
+      tags:
+      - Users
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

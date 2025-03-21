@@ -1,6 +1,7 @@
 package userroutes
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -17,7 +18,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-// GET (/users)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Get all users
+// @Schemes
+// @Description Find all users registered with the ginference-server
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Success 200 {array} user.User
+// @Router /users [get]
 func GetAllUsers(c *gin.Context) {
 	filter := bson.D{{}}
 	findOptions := options.Find()
@@ -34,7 +45,18 @@ func GetAllUsers(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, registeredUsers)
 }
 
-// GET (/users/id/:id)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Search user by ID
+// @Schemes
+// @Description Find the user created with the given ID
+// @Tags Users
+// @Param id path string true "User ID" minlength(36) maxlength(36)
+// @Accept json
+// @Produce json
+// @Success 200 {object} user.User
+// @Router /users/id/{id} [get]
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -66,7 +88,18 @@ func GetUserByID(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, usr)
 }
 
-// GET (/users/name/:name)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Search users by name
+// @Schemes
+// @Description Find the users created with the given name
+// @Tags Users
+// @Param name path string true "Name" minlength(2) maxlength(18)
+// @Accept json
+// @Produce json
+// @Success 200 {array} user.User
+// @Router /users/name/{name} [get]
 func GetUserByName(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
@@ -89,6 +122,18 @@ func GetUserByName(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, registeredUsers)
 }
 
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Search user by username
+// @Schemes
+// @Description Find the user created with the given username
+// @Tags Users
+// @Param username path string true "Username" minlength(5) maxlength(18)
+// @Accept json
+// @Produce json
+// @Success 200 {object} user.User
+// @Router /users/username/{username} [get]
 func GetUserByUserName(c *gin.Context) {
 	username := c.Param("username")
 	if username == "" {
@@ -116,33 +161,96 @@ func GetUserByUserName(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, usr)
 }
 
-// POST (/users/create)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Create new user
+// @Schemes
+// @Description Register new user for inference
+// @Tags Users
+// @Param User body user.UserCreate true "Create User"
+// @Accept json
+// @Produce json
+// @Success 201 {object} user.User
+// @Router /users/create [post]
 func CreateNewUser(c *gin.Context) {
-	var newUser user.User
+	var newUser user.UserCreate
 	if err := c.BindJSON(&newUser); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	newUser.UserID = uuid.New()
-	newUser.FullName = strings.Join([]string{newUser.FirstName, newUser.LastName}, " ")
-	newUser.CreatedAt = time.Now()
-	newUser.ModifiedAt = time.Now()
-	if err := data.Create(newUser, devconfig.DBName, devconfig.UserCollection); err != nil {
+	filter := bson.D{{Key: "username", Value: newUser.UserName}}
+	findOptions := options.Find()
+	var registeredUsers user.Users
+	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, newUser)
+	if len(registeredUsers) > 0 {
+		c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("User with the user name '%s' already exists", newUser.UserName))
+		return
+	}
+	var usr user.User
+	usr.UserID = uuid.New()
+	usr.FirstName = newUser.FirstName
+	usr.LastName = newUser.LastName
+	usr.UserName = newUser.UserName
+	usr.EmailID = newUser.EmailID
+	usr.Phone = newUser.Phone
+	usr.CountryCode = newUser.CountryCode
+	usr.FullName = strings.Join([]string{newUser.FirstName, newUser.LastName}, " ")
+	usr.CreatedAt = time.Now()
+	usr.ModifiedAt = time.Now()
+	if err := data.Create(usr, devconfig.DBName, devconfig.UserCollection); err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.IndentedJSON(http.StatusCreated, usr)
 }
 
-// PUT (/users/edit)
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Edit a user
+// @Schemes
+// @Description Update a registered User's details
+// @Tags Users
+// @Param User body user.UserUpdate true "Update User"
+// @Accept json
+// @Produce json
+// @Success 200 {object} user.User
+// @Router /users/edit [put]
 func EditUser(c *gin.Context) {
-	var usr user.UserUpdate
-	if err := c.BindJSON(&usr); err != nil {
+	var usrUpdate user.UserUpdate
+	if err := c.BindJSON(&usrUpdate); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	filter := bson.D{{Key: "userid", Value: usr.UserID}}
+	filter := bson.D{{Key: "userid", Value: usrUpdate.UserID}}
+	findOptions := options.Find()
+	var registeredUsers user.Users
+	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if len(registeredUsers) == 0 {
+		c.IndentedJSON(http.StatusNotFound, registeredUsers.ErrNotFound(usrUpdate.UserID).Error())
+		return
+	}
+	usr, err := utils.First(registeredUsers)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 	updateOptions := options.UpdateOne().SetUpsert(false)
+	usr.FirstName = usrUpdate.FirstName
+	usr.LastName = usrUpdate.LastName
+	usr.FullName = strings.Join([]string{usrUpdate.FirstName, usrUpdate.LastName}, " ")
+	usr.EmailID = usrUpdate.EmailID
+	usr.Phone = usrUpdate.Phone
+	usr.CountryCode = usrUpdate.CountryCode
 	usr.ModifiedAt = time.Now()
 	if err := data.EditOne(usr, devconfig.DBName, devconfig.UserCollection, filter, updateOptions); err != nil {
 		c.IndentedJSON(http.StatusConflict, err.Error())
