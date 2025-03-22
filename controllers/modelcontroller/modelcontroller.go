@@ -1,4 +1,4 @@
-package modelroutes
+package modelcontroller
 
 import (
 	"net/http"
@@ -24,6 +24,7 @@ import (
 // @Schemes
 // @Description Find all AI Models subscribed to the ginference-server
 // @Tags AIModels
+// @Security ApiKeyAuth
 // @Accept json
 // @Produce json
 // @Success 200 {array} model.AIModel
@@ -51,6 +52,7 @@ func GetAllModels(c *gin.Context) {
 // @Schemes
 // @Description Find an AI Model using the given modelID
 // @Tags AIModels
+// @Security ApiKeyAuth
 // @Param id path string true "Model ID" minlength(36) maxlength(36)
 // @Accept json
 // @Produce json
@@ -94,6 +96,7 @@ func GetModelByID(c *gin.Context) {
 // @Schemes
 // @Description Find AI Models matching the given model name
 // @Tags AIModels
+// @Security ApiKeyAuth
 // @Param name path string true "Model Name" minlength(2) maxlength(18)
 // @Accept json
 // @Produce json
@@ -128,6 +131,7 @@ func GetModelByName(c *gin.Context) {
 // @Schemes
 // @Description Find AI Models created by the user with the given username
 // @Tags AIModels
+// @Security ApiKeyAuth
 // @Param username path string true "Username" minlength(5) maxlength(18)
 // @Accept json
 // @Produce json
@@ -177,6 +181,7 @@ func GetModelsByUsername(c *gin.Context) {
 // @Schemes
 // @Description Subscribe new AIModel for inference
 // @Tags AIModels
+// @Security ApiKeyAuth
 // @Param AIModel body model.AIModelCreate true "Create AIModel"
 // @Accept json
 // @Produce json
@@ -225,6 +230,7 @@ func CreateNewModel(c *gin.Context) {
 // @Schemes
 // @Description Update a subscribed AIModel's details
 // @Tags AIModels
+// @Security ApiKeyAuth
 // @Param AIModel body model.AIModelUpdate true "Update AIModel"
 // @Accept json
 // @Produce json

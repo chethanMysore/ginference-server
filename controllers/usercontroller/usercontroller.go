@@ -1,4 +1,4 @@
-package userroutes
+package usercontroller
 
 import (
 	"fmt"
@@ -25,6 +25,7 @@ import (
 // @Schemes
 // @Description Find all users registered with the ginference-server
 // @Tags Users
+// @Security ApiKeyAuth
 // @Accept json
 // @Produce json
 // @Success 200 {array} user.User
@@ -52,6 +53,7 @@ func GetAllUsers(c *gin.Context) {
 // @Schemes
 // @Description Find the user created with the given ID
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param id path string true "User ID" minlength(36) maxlength(36)
 // @Accept json
 // @Produce json
@@ -95,6 +97,7 @@ func GetUserByID(c *gin.Context) {
 // @Schemes
 // @Description Find the users created with the given name
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param name path string true "Name" minlength(2) maxlength(18)
 // @Accept json
 // @Produce json
@@ -129,6 +132,7 @@ func GetUserByName(c *gin.Context) {
 // @Schemes
 // @Description Find the user created with the given username
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param username path string true "Username" minlength(5) maxlength(18)
 // @Accept json
 // @Produce json
@@ -161,18 +165,6 @@ func GetUserByUserName(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, usr)
 }
 
-// @BasePath /api/v1
-
-// PingExample godoc
-// @Summary Create new user
-// @Schemes
-// @Description Register new user for inference
-// @Tags Users
-// @Param User body user.UserCreate true "Create User"
-// @Accept json
-// @Produce json
-// @Success 201 {object} user.User
-// @Router /users/create [post]
 func CreateNewUser(c *gin.Context) {
 	var newUser user.UserCreate
 	if err := c.BindJSON(&newUser); err != nil {
@@ -216,6 +208,7 @@ func CreateNewUser(c *gin.Context) {
 // @Schemes
 // @Description Update a registered User's details
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param User body user.UserUpdate true "Update User"
 // @Accept json
 // @Produce json

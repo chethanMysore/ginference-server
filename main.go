@@ -21,6 +21,12 @@ import (
 // @BasePath  /api/v1
 
 // @securityDefinitions.basic  BasicAuth
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @description "Type 'Bearer TOKEN' to correctly set the API Key"
+// @authorizationurl http://localhost:8080/api/v1/auth/login
+// @tokenUrl http://localhost:8080/api/v1/auth/login
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/

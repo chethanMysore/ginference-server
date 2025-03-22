@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 	"os"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type FilterError interface {
@@ -69,4 +71,13 @@ func ReadConfig(path string) (string, error) {
 		}
 	}
 	return strBuff.String(), nil
+}
+
+func Hasher(p string) (string, error) {
+	res, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
+	return string(res), err
+}
+
+func VerifyHash(p, hashedP string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedP), []byte(p))
 }
