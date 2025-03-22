@@ -2,7 +2,7 @@ package data
 
 import (
 	"context"
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/models/model"
 	"example/ginference-server/models/user"
 	"fmt"
@@ -35,15 +35,15 @@ var SubscribedModels = model.AIModels{
 func MongoDBInit() *mongo.Client {
 	var dbConnectionString string
 	var clientOpts *options.ClientOptions
-	if devconfig.WithTLS {
-		dbConnectionString = devconfig.DBConnectionStringWithTLS
+	if config.WithTLS {
+		dbConnectionString = config.DBConnectionStringWithTLS
 		// credential := options.Credential{
 		// 	AuthMechanism: "MONGODB-X509",
 		// }
 		clientOpts = options.Client().ApplyURI(dbConnectionString)
 		//.SetAuth(credential)
 	} else {
-		dbConnectionString = devconfig.DBConnectionString
+		dbConnectionString = config.DBConnectionString
 		clientOpts = options.Client().ApplyURI(dbConnectionString)
 	}
 	dbClient, dbConnectionErr := mongo.Connect(clientOpts)

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/routes"
 )
 
@@ -21,10 +21,16 @@ import (
 // @BasePath  /api/v1
 
 // @securityDefinitions.basic  BasicAuth
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @description "Type 'Bearer TOKEN' to correctly set the API Key"
+// @authorizationurl http://localhost:8080/api/v1/auth/login
+// @tokenUrl http://localhost:8080/api/v1/auth/login
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	router := routes.Init()
-	router.Run(devconfig.APIDomainURI)
+	router.Run(config.APIDomainURI)
 }

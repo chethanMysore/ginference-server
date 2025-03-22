@@ -22,10 +22,18 @@ type User struct {
 	ModifiedAt  time.Time `json:"modifiedAt"`
 }
 
+type UserAuth struct {
+	UserID       uuid.UUID `json:"userID" binding:"required"`
+	UserName     string    `json:"userName" binding:"required,alphanum,min=5,max=18"`
+	PasswordHash string    `json:"pwdHash" binding:"required"`
+	Role         string    `json:"role" binding:"required"`
+}
+
 type UserCreate struct {
 	FirstName   string `json:"firstName" binding:"required,alpha,min=2,max=18"`
 	LastName    string `json:"lastName" binding:"required,alpha,min=2,max=18"`
 	UserName    string `json:"userName" binding:"required,alphanum,min=5,max=18"`
+	Password    string `json:"password" binding:"required,min=8,max=18"`
 	EmailID     string `json:"emailID" binding:"required,email"`
 	Phone       string `json:"phone" binding:"required,e164"`
 	CountryCode string `json:"countryCode" binding:"required,iso3166_1_alpha2"`
@@ -45,6 +53,18 @@ func (u User) ErrEmptyList() error {
 }
 
 func (u User) ErrNotFound(params ...any) error {
+	if len(params) == 0 {
+		return fmt.Errorf("no such user found")
+	} else {
+		return fmt.Errorf("no such user found with %v", params[0])
+	}
+}
+
+func (u UserAuth) ErrEmptyList() error {
+	return fmt.Errorf("no users registered")
+}
+
+func (u UserAuth) ErrNotFound(params ...any) error {
 	if len(params) == 0 {
 		return fmt.Errorf("no such user found")
 	} else {

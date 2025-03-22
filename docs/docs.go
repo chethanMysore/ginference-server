@@ -24,8 +24,75 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/login": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "performs user authentication and returns JWT Auth token on success",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User Login",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Register new user for inference",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Create new user",
+                "parameters": [
+                    {
+                        "description": "Create User",
+                        "name": "User",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UserCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/user.User"
+                        }
+                    }
+                }
+            }
+        },
         "/models": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find all AI Models subscribed to the ginference-server",
                 "consumes": [
                     "application/json"
@@ -52,6 +119,11 @@ const docTemplate = `{
         },
         "/models/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Subscribe new AIModel for inference",
                 "consumes": [
                     "application/json"
@@ -86,6 +158,11 @@ const docTemplate = `{
         },
         "/models/edit": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update a subscribed AIModel's details",
                 "consumes": [
                     "application/json"
@@ -120,6 +197,11 @@ const docTemplate = `{
         },
         "/models/id/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find an AI Model using the given modelID",
                 "consumes": [
                     "application/json"
@@ -154,6 +236,11 @@ const docTemplate = `{
         },
         "/models/name/{name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find AI Models matching the given model name",
                 "consumes": [
                     "application/json"
@@ -191,6 +278,11 @@ const docTemplate = `{
         },
         "/models/username/{username}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find AI Models created by the user with the given username",
                 "consumes": [
                     "application/json"
@@ -228,6 +320,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find all users registered with the ginference-server",
                 "consumes": [
                     "application/json"
@@ -252,9 +349,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/create": {
-            "post": {
-                "description": "Register new user for inference",
+        "/users/auth/id/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Find the user role created with the given username",
                 "consumes": [
                     "application/json"
                 ],
@@ -264,23 +366,23 @@ const docTemplate = `{
                 "tags": [
                     "Users"
                 ],
-                "summary": "Create new user",
+                "summary": "Search user role by userID",
                 "parameters": [
                     {
-                        "description": "Create User",
-                        "name": "User",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/user.UserCreate"
-                        }
+                        "maxLength": 36,
+                        "minLength": 36,
+                        "type": "string",
+                        "description": "UserID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.User"
+                            "type": "string"
                         }
                     }
                 }
@@ -288,6 +390,11 @@ const docTemplate = `{
         },
         "/users/edit": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update a registered User's details",
                 "consumes": [
                     "application/json"
@@ -322,6 +429,11 @@ const docTemplate = `{
         },
         "/users/id/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find the user created with the given ID",
                 "consumes": [
                     "application/json"
@@ -356,6 +468,11 @@ const docTemplate = `{
         },
         "/users/name/{name}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find the users created with the given name",
                 "consumes": [
                     "application/json"
@@ -393,6 +510,11 @@ const docTemplate = `{
         },
         "/users/username/{username}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Find the user created with the given username",
                 "consumes": [
                     "application/json"
@@ -543,6 +665,7 @@ const docTemplate = `{
                 "emailID",
                 "firstName",
                 "lastName",
+                "password",
                 "phone",
                 "userName"
             ],
@@ -562,6 +685,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 18,
                     "minLength": 2
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 18,
+                    "minLength": 8
                 },
                 "phone": {
                     "type": "string"
@@ -610,6 +738,12 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "\"Type 'Bearer TOKEN' to correctly set the API Key\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
         "BasicAuth": {
             "type": "basic"
         }

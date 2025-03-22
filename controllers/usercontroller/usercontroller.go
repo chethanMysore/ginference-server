@@ -1,4 +1,4 @@
-package userroutes
+package usercontroller
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/data"
 	"example/ginference-server/models/user"
 	"example/ginference-server/utils"
@@ -25,6 +25,7 @@ import (
 // @Schemes
 // @Description Find all users registered with the ginference-server
 // @Tags Users
+// @Security ApiKeyAuth
 // @Accept json
 // @Produce json
 // @Success 200 {array} user.User
@@ -33,7 +34,7 @@ func GetAllUsers(c *gin.Context) {
 	filter := bson.D{{}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -52,6 +53,7 @@ func GetAllUsers(c *gin.Context) {
 // @Schemes
 // @Description Find the user created with the given ID
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param id path string true "User ID" minlength(36) maxlength(36)
 // @Accept json
 // @Produce json
@@ -71,7 +73,7 @@ func GetUserByID(c *gin.Context) {
 	filter := bson.D{{Key: "userid", Value: userID}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -95,6 +97,7 @@ func GetUserByID(c *gin.Context) {
 // @Schemes
 // @Description Find the users created with the given name
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param name path string true "Name" minlength(2) maxlength(18)
 // @Accept json
 // @Produce json
@@ -110,7 +113,7 @@ func GetUserByName(c *gin.Context) {
 	filter := bson.D{{Key: "fullname", Value: bson.Regex{Pattern: name, Options: "i"}}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -129,6 +132,7 @@ func GetUserByName(c *gin.Context) {
 // @Schemes
 // @Description Find the user created with the given username
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param username path string true "Username" minlength(5) maxlength(18)
 // @Accept json
 // @Produce json
@@ -144,7 +148,7 @@ func GetUserByUserName(c *gin.Context) {
 	filter := bson.D{{Key: "username", Value: username}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -164,15 +168,43 @@ func GetUserByUserName(c *gin.Context) {
 // @BasePath /api/v1
 
 // PingExample godoc
-// @Summary Create new user
+// @Summary Search user role by userID
 // @Schemes
-// @Description Register new user for inference
+// @Description Find the user role created with the given username
 // @Tags Users
-// @Param User body user.UserCreate true "Create User"
+// @Security ApiKeyAuth
+// @Param id path string true "UserID" minlength(36) maxlength(36)
 // @Accept json
 // @Produce json
-// @Success 201 {object} user.User
-// @Router /users/create [post]
+// @Success 200 {string} role
+// @Router /users/auth/id/{id} [get]
+func GetUserRoleByID(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.String(http.StatusBadRequest, "Please specify the userID")
+		return
+	}
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.String(http.StatusBadRequest, fmt.Sprintf("Invalid uuid - %s", id))
+		return
+	}
+	filter := bson.D{{Key: "userid", Value: userID}}
+	findOptions := options.Find()
+	var usrs []user.UserAuth
+	usrs, err = data.Find(usrs, config.DBName, config.AuthCollection, filter, findOptions)
+	if err != nil || len(usrs) == 0 {
+		c.String(http.StatusNotFound, fmt.Sprintf("No users found with the userID - %s", id))
+		return
+	}
+	usr, err := utils.First(usrs)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.IndentedJSON(http.StatusOK, usr.Role)
+}
+
 func CreateNewUser(c *gin.Context) {
 	var newUser user.UserCreate
 	if err := c.BindJSON(&newUser); err != nil {
@@ -182,7 +214,7 @@ func CreateNewUser(c *gin.Context) {
 	filter := bson.D{{Key: "username", Value: newUser.UserName}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -202,7 +234,7 @@ func CreateNewUser(c *gin.Context) {
 	usr.FullName = strings.Join([]string{newUser.FirstName, newUser.LastName}, " ")
 	usr.CreatedAt = time.Now()
 	usr.ModifiedAt = time.Now()
-	if err := data.Create(usr, devconfig.DBName, devconfig.UserCollection); err != nil {
+	if err := data.Create(usr, config.DBName, config.UserCollection); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -216,6 +248,7 @@ func CreateNewUser(c *gin.Context) {
 // @Schemes
 // @Description Update a registered User's details
 // @Tags Users
+// @Security ApiKeyAuth
 // @Param User body user.UserUpdate true "Update User"
 // @Accept json
 // @Produce json
@@ -230,7 +263,7 @@ func EditUser(c *gin.Context) {
 	filter := bson.D{{Key: "userid", Value: usrUpdate.UserID}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -252,7 +285,7 @@ func EditUser(c *gin.Context) {
 	usr.Phone = usrUpdate.Phone
 	usr.CountryCode = usrUpdate.CountryCode
 	usr.ModifiedAt = time.Now()
-	if err := data.EditOne(usr, devconfig.DBName, devconfig.UserCollection, filter, updateOptions); err != nil {
+	if err := data.EditOne(usr, config.DBName, config.UserCollection, filter, updateOptions); err != nil {
 		c.IndentedJSON(http.StatusConflict, err.Error())
 		return
 	}

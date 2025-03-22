@@ -1,5 +1,13 @@
 package utils
 
+import (
+	"bytes"
+	"io"
+	"os"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
 type FilterError interface {
 	ErrEmptyList() error
 	ErrNotFound(params ...any) error
@@ -33,4 +41,43 @@ func First[T FilterError](ipList []T) (T, error) {
 		var none T
 		return none, none.ErrEmptyList()
 	}
+}
+
+func ReadConfig(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err = file.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	b := make([]byte, 32)
+	strBuff := bytes.NewBufferString("")
+	for {
+		n, err := file.Read(b)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+		if n > 0 {
+			_, err := strBuff.Write(b[:n])
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+	return strBuff.String(), nil
+}
+
+func Hasher(p string) (string, error) {
+	res, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
+	return string(res), err
+}
+
+func VerifyHash(p, hashedP string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedP), []byte(p))
 }
