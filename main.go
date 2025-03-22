@@ -1,7 +1,7 @@
 package main
 
 import (
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/routes"
 )
 
@@ -32,5 +32,5 @@ import (
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	router := routes.Init()
-	router.Run(devconfig.APIDomainURI)
+	router.Run(config.APIDomainURI)
 }

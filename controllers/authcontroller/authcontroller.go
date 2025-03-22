@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/data"
 	"example/ginference-server/models/user"
 	"example/ginference-server/utils"
@@ -41,7 +41,7 @@ func Register(c *gin.Context) {
 	filter := bson.D{{Key: "username", Value: newUser.UserName}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -61,7 +61,7 @@ func Register(c *gin.Context) {
 	usr.FullName = strings.Join([]string{newUser.FirstName, newUser.LastName}, " ")
 	usr.CreatedAt = time.Now()
 	usr.ModifiedAt = time.Now()
-	if err := data.Create(usr, devconfig.DBName, devconfig.UserCollection); err != nil {
+	if err := data.Create(usr, config.DBName, config.UserCollection); err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -74,7 +74,8 @@ func Register(c *gin.Context) {
 	auth.UserID = usr.UserID
 	auth.PasswordHash = string(pwdHash)
 	auth.UserName = usr.UserName
-	if err := data.Create(auth, devconfig.DBName, devconfig.AuthCollection); err != nil {
+	auth.Role = config.UserRoles.User
+	if err := data.Create(auth, config.DBName, config.AuthCollection); err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -110,7 +111,7 @@ func Login(c *gin.Context) {
 	filter := bson.D{{Key: "username", Value: username}}
 	findOptions := options.Find()
 	var registeredUsers []user.UserAuth
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.AuthCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.AuthCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return

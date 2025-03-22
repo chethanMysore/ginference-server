@@ -358,6 +358,31 @@ paths:
       summary: Get all users
       tags:
       - Users
+  /users/auth/id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find the user role created with the given username
+      parameters:
+      - description: UserID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Search user role by userID
+      tags:
+      - Users
   /users/edit:
     put:
       consumes:

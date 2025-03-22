@@ -1,13 +1,16 @@
 package routes
 
 import (
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/controllers/authcontroller"
 	"example/ginference-server/controllers/modelcontroller"
 	"example/ginference-server/controllers/usercontroller"
 	"example/ginference-server/middlewares"
+	"time"
 
 	docs "example/ginference-server/docs"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -15,6 +18,15 @@ import (
 
 func Init() *gin.Engine {
 	router := gin.Default()
+
+	cnf := cors.DefaultConfig()
+	cnf.AllowAllOrigins = config.CORSAllowAllOrigins
+	cnf.AllowMethods = config.CORSAllowedMethods
+	cnf.AllowHeaders = config.CORSAllowedHeaders
+	cnf.ExposeHeaders = config.CORSExposedHeaders
+	cnf.AllowCredentials = config.CORSAllowCredentials
+	cnf.MaxAge = time.Duration(config.CORSMaxAge) * time.Hour
+	router.Use(cors.New(cnf))
 
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := router.Group("/api/v1")
@@ -32,6 +44,7 @@ func Init() *gin.Engine {
 			usr.GET("/id/:id", usercontroller.GetUserByID)
 			usr.GET("/name/:name", usercontroller.GetUserByName)
 			usr.GET("/username/:username", usercontroller.GetUserByUserName)
+			usr.GET("/auth/id/:id", usercontroller.GetUserRoleByID)
 			usr.PUT("/edit", usercontroller.EditUser)
 		}
 		// Model routes '/models*'

@@ -1,7 +1,7 @@
 package token
 
 import (
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/utils"
 	"fmt"
 	"strconv"
@@ -11,11 +11,11 @@ import (
 )
 
 func GenerateToken(userID string) (string, error) {
-	tokenLifespan, err := strconv.Atoi(devconfig.TokenHourLifespan)
+	tokenLifespan, err := strconv.Atoi(config.TokenHourLifespan)
 	if err != nil {
 		return "", err
 	}
-	apiSecretKey, err := utils.ReadConfig(devconfig.APISecretPath)
+	apiSecretKey, err := utils.ReadConfig(config.APISecretPath)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +32,7 @@ func GenerateToken(userID string) (string, error) {
 }
 
 func ValidateToken(tokenStr string) (*jwt.Token, error) {
-	apiSecretKey, err := utils.ReadConfig(devconfig.APISecretPath)
+	apiSecretKey, err := utils.ReadConfig(config.APISecretPath)
 	if err != nil {
 		return nil, err
 	}

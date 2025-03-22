@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"example/ginference-server/config/devconfig"
+	config "example/ginference-server/config/devconfig"
 	"example/ginference-server/data"
 	"example/ginference-server/models/model"
 	"example/ginference-server/models/user"
@@ -33,7 +33,7 @@ func GetAllModels(c *gin.Context) {
 	filter := bson.D{{}}
 	findOptions := options.Find()
 	var subscribedModels model.AIModels
-	subscribedModels, err := data.Find(subscribedModels, devconfig.DBName, devconfig.ModelCollection, filter, findOptions)
+	subscribedModels, err := data.Find(subscribedModels, config.DBName, config.ModelCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -72,7 +72,7 @@ func GetModelByID(c *gin.Context) {
 	filter := bson.D{{Key: "modelid", Value: modelID}}
 	findOptions := options.Find()
 	var subscribedModels model.AIModels
-	subscribedModels, err := data.Find(subscribedModels, devconfig.DBName, devconfig.ModelCollection, filter, findOptions)
+	subscribedModels, err := data.Find(subscribedModels, config.DBName, config.ModelCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -112,7 +112,7 @@ func GetModelByName(c *gin.Context) {
 	filter := bson.D{{Key: "modelname", Value: bson.Regex{Pattern: modelName, Options: "i"}}}
 	findOptions := options.Find()
 	var subscribedModels model.AIModels
-	subscribedModels, err := data.Find(subscribedModels, devconfig.DBName, devconfig.ModelCollection, filter, findOptions)
+	subscribedModels, err := data.Find(subscribedModels, config.DBName, config.ModelCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -146,7 +146,7 @@ func GetModelsByUsername(c *gin.Context) {
 	filter := bson.D{{Key: "username", Value: userName}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -162,7 +162,7 @@ func GetModelsByUsername(c *gin.Context) {
 	}
 	filter = bson.D{{Key: "createdby", Value: usr.UserID}}
 	var subscribedModels model.AIModels
-	subscribedModels, err = data.Find(subscribedModels, devconfig.DBName, devconfig.ModelCollection, filter, findOptions)
+	subscribedModels, err = data.Find(subscribedModels, config.DBName, config.ModelCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -196,7 +196,7 @@ func CreateNewModel(c *gin.Context) {
 	filter := bson.D{{Key: "userid", Value: newModel.CreatedBy}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
-	registeredUsers, err := data.Find(registeredUsers, devconfig.DBName, devconfig.UserCollection, filter, findOptions)
+	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -216,7 +216,7 @@ func CreateNewModel(c *gin.Context) {
 	mod.ModifiedAt = time.Now()
 	mod.ModelName = newModel.ModelName
 	mod.CreatedBy = newModel.CreatedBy
-	if err := data.Create(mod, devconfig.DBName, devconfig.ModelCollection); err != nil {
+	if err := data.Create(mod, config.DBName, config.ModelCollection); err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -245,7 +245,7 @@ func EditModel(c *gin.Context) {
 	filter := bson.D{{Key: "modelid", Value: modUpdate.ModelID}}
 	findOptions := options.Find()
 	var subscribedModels model.AIModels
-	subscribedModels, err := data.Find(subscribedModels, devconfig.DBName, devconfig.ModelCollection, filter, findOptions)
+	subscribedModels, err := data.Find(subscribedModels, config.DBName, config.ModelCollection, filter, findOptions)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
@@ -262,7 +262,7 @@ func EditModel(c *gin.Context) {
 	updateOptions := options.UpdateOne().SetUpsert(false)
 	mod.ModelName = modUpdate.ModelName
 	mod.ModifiedAt = time.Now()
-	if err := data.EditOne(mod, devconfig.DBName, devconfig.ModelCollection, filter, updateOptions); err != nil {
+	if err := data.EditOne(mod, config.DBName, config.ModelCollection, filter, updateOptions); err != nil {
 		c.IndentedJSON(http.StatusConflict, err.Error())
 		return
 	}
