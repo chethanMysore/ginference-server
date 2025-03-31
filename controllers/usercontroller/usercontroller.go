@@ -31,6 +31,12 @@ import (
 // @Success 200 {array} user.User
 // @Router /users [get]
 func GetAllUsers(c *gin.Context) {
+	//authUser, ok := c.Get("authUser")
+	// if !ok {
+	// 	c.String(http.StatusInternalServerError, "authUser not Found in JWT token")
+	// 	c.Abort()
+	// 	return
+	// }
 	filter := bson.D{{}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
@@ -211,7 +217,7 @@ func CreateNewUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, err.Error())
 		return
 	}
-	filter := bson.D{{Key: "username", Value: newUser.UserName}}
+	filter := bson.D{{Key: "username", Value: newUser.Username}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
 	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
@@ -220,14 +226,14 @@ func CreateNewUser(c *gin.Context) {
 		return
 	}
 	if len(registeredUsers) > 0 {
-		c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("User with the user name '%s' already exists", newUser.UserName))
+		c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("User with the user name '%s' already exists", newUser.Username))
 		return
 	}
 	var usr user.User
 	usr.UserID = uuid.New()
 	usr.FirstName = newUser.FirstName
 	usr.LastName = newUser.LastName
-	usr.UserName = newUser.UserName
+	usr.Username = newUser.Username
 	usr.EmailID = newUser.EmailID
 	usr.Phone = newUser.Phone
 	usr.CountryCode = newUser.CountryCode

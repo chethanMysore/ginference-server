@@ -37,8 +37,8 @@ func Register(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 		return
 	}
-	newUser.UserName = html.EscapeString(strings.TrimSpace(newUser.UserName))
-	filter := bson.D{{Key: "username", Value: newUser.UserName}}
+	newUser.Username = html.EscapeString(strings.TrimSpace(newUser.Username))
+	filter := bson.D{{Key: "username", Value: newUser.Username}}
 	findOptions := options.Find()
 	var registeredUsers user.Users
 	registeredUsers, err := data.Find(registeredUsers, config.DBName, config.UserCollection, filter, findOptions)
@@ -47,14 +47,14 @@ func Register(c *gin.Context) {
 		return
 	}
 	if len(registeredUsers) > 0 {
-		c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("User with the user name '%s' already exists", newUser.UserName))
+		c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("User with the user name '%s' already exists", newUser.Username))
 		return
 	}
 	var usr user.User
 	usr.UserID = uuid.New()
 	usr.FirstName = newUser.FirstName
 	usr.LastName = newUser.LastName
-	usr.UserName = newUser.UserName
+	usr.Username = newUser.Username
 	usr.EmailID = newUser.EmailID
 	usr.Phone = newUser.Phone
 	usr.CountryCode = newUser.CountryCode
@@ -73,21 +73,20 @@ func Register(c *gin.Context) {
 	}
 	auth.UserID = usr.UserID
 	auth.PasswordHash = string(pwdHash)
-	auth.UserName = usr.UserName
+	auth.Username = usr.Username
 	auth.Role = config.UserRoles.User
 	if err := data.Create(auth, config.DBName, config.AuthCollection); err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	token, err := token.GenerateToken(usr.UserID.String())
+	token, tokenMaxAge, err := token.GenerateToken(usr.UserID.String())
+	domain := strings.Split(c.Request.Host, ":")[0]
+	c.SetCookie("access_token", token, int(tokenMaxAge), "/", domain, false, true)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, struct {
-		User  user.User
-		Token string
-	}{User: usr, Token: token})
+	c.IndentedJSON(http.StatusCreated, usr)
 }
 
 // @BasePath /api/v1
@@ -99,7 +98,7 @@ func Register(c *gin.Context) {
 // @Security BasicAuth
 // @Accept json
 // @Produce json
-// @Success 201 {string} token
+// @Success 201 {string} success
 // @Router /auth/login [get]
 func Login(c *gin.Context) {
 	req := c.Request
@@ -117,7 +116,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	if len(registeredUsers) == 0 {
-		c.IndentedJSON(http.StatusNotFound, fmt.Sprintf("No user found with %s", username))
+		c.IndentedJSON(http.StatusUnauthorized, fmt.Sprintf("No user found with %s", username))
 		return
 	}
 	usr, err := utils.First(registeredUsers)
@@ -129,10 +128,12 @@ func Login(c *gin.Context) {
 		c.String(http.StatusUnauthorized, "Incorrect Password")
 		return
 	}
-	token, err := token.GenerateToken(usr.UserID.String())
+	token, tokenMaxAge, err := token.GenerateToken(usr.UserID.String())
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, token)
+	domain := strings.Split(c.Request.Host, ":")[0]
+	c.SetCookie("access_token", token, int(tokenMaxAge), "/", domain, false, true)
+	c.String(http.StatusOK, "Login Successful")
 }

@@ -617,7 +617,7 @@ const docTemplate = `{
                 "firstName",
                 "lastName",
                 "phone",
-                "userName"
+                "username"
             ],
             "properties": {
                 "countryCode": {
@@ -651,7 +651,7 @@ const docTemplate = `{
                 "userID": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string",
                     "maxLength": 18,
                     "minLength": 5
@@ -667,7 +667,7 @@ const docTemplate = `{
                 "lastName",
                 "password",
                 "phone",
-                "userName"
+                "username"
             ],
             "properties": {
                 "countryCode": {
@@ -694,7 +694,7 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string",
                     "maxLength": 18,
                     "minLength": 5

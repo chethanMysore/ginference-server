@@ -66,7 +66,7 @@ definitions:
         type: string
       userID:
         type: string
-      userName:
+      username:
         maxLength: 18
         minLength: 5
         type: string
@@ -76,7 +76,7 @@ definitions:
     - firstName
     - lastName
     - phone
-    - userName
+    - username
     type: object
   user.UserCreate:
     properties:
@@ -98,7 +98,7 @@ definitions:
         type: string
       phone:
         type: string
-      userName:
+      username:
         maxLength: 18
         minLength: 5
         type: string
@@ -109,7 +109,7 @@ definitions:
     - lastName
     - password
     - phone
-    - userName
+    - username
     type: object
   user.UserUpdate:
     properties:

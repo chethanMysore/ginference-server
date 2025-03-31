@@ -611,7 +611,7 @@
                 "firstName",
                 "lastName",
                 "phone",
-                "userName"
+                "username"
             ],
             "properties": {
                 "countryCode": {
@@ -645,7 +645,7 @@
                 "userID": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string",
                     "maxLength": 18,
                     "minLength": 5
@@ -661,7 +661,7 @@
                 "lastName",
                 "password",
                 "phone",
-                "userName"
+                "username"
             ],
             "properties": {
                 "countryCode": {
@@ -688,7 +688,7 @@
                 "phone": {
                     "type": "string"
                 },
-                "userName": {
+                "username": {
                     "type": "string",
                     "maxLength": 18,
                     "minLength": 5

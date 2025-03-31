@@ -14,7 +14,7 @@ type User struct {
 	FirstName   string    `json:"firstName" binding:"required,alpha,min=2,max=18"`
 	LastName    string    `json:"lastName" binding:"required,alpha,min=2,max=18"`
 	FullName    string    `json:"fullName"`
-	UserName    string    `json:"userName" binding:"required,alphanum,min=5,max=18"`
+	Username    string    `json:"username" binding:"required,alphanum,min=5,max=18"`
 	EmailID     string    `json:"emailID" binding:"required,email"`
 	Phone       string    `json:"phone" binding:"required,e164"`
 	CountryCode string    `json:"countryCode" binding:"required,iso3166_1_alpha2"`
@@ -24,7 +24,7 @@ type User struct {
 
 type UserAuth struct {
 	UserID       uuid.UUID `json:"userID" binding:"required"`
-	UserName     string    `json:"userName" binding:"required,alphanum,min=5,max=18"`
+	Username     string    `json:"username" binding:"required,alphanum,min=5,max=18"`
 	PasswordHash string    `json:"pwdHash" binding:"required"`
 	Role         string    `json:"role" binding:"required"`
 }
@@ -32,7 +32,7 @@ type UserAuth struct {
 type UserCreate struct {
 	FirstName   string `json:"firstName" binding:"required,alpha,min=2,max=18"`
 	LastName    string `json:"lastName" binding:"required,alpha,min=2,max=18"`
-	UserName    string `json:"userName" binding:"required,alphanum,min=5,max=18"`
+	Username    string `json:"username" binding:"required,alphanum,min=5,max=18"`
 	Password    string `json:"password" binding:"required,min=8,max=18"`
 	EmailID     string `json:"emailID" binding:"required,email"`
 	Phone       string `json:"phone" binding:"required,e164"`
@@ -99,7 +99,7 @@ func (usrs Users) FindByName(name string) (User, error) {
 
 func (usrs Users) FindByUserName(userName string) (User, error) {
 	filteredUsers, err := utils.Filter(usrs, func(usr User) bool {
-		return strings.Contains(strings.ToLower(usr.UserName), strings.ToLower(userName))
+		return strings.Contains(strings.ToLower(usr.Username), strings.ToLower(userName))
 	})
 	if err != nil {
 		var userErr User

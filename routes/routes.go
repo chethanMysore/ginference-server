@@ -20,7 +20,8 @@ func Init() *gin.Engine {
 	router := gin.Default()
 
 	cnf := cors.DefaultConfig()
-	cnf.AllowAllOrigins = config.CORSAllowAllOrigins
+	cnf.AllowOrigins = config.CORSAllowedDomains
+	// cnf.AllowAllOrigins = config.CORSAllowAllOrigins
 	cnf.AllowMethods = config.CORSAllowedMethods
 	cnf.AllowHeaders = config.CORSAllowedHeaders
 	cnf.ExposeHeaders = config.CORSExposedHeaders

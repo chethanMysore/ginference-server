@@ -29,11 +29,13 @@ var DBConnectionString = fmt.Sprintf("%s/?tls=%s", DBDomainURI, strconv.FormatBo
 // JWT Configs
 const APISecretPath = "E:\\Learning\\notes\\openssl-secret.txt"
 const TokenHourLifespan = "1"
+const JWTCookieName = "access_token"
 
 // CORS Configs
+var CORSAllowedDomains = []string{"http://localhost:3000"}
 var CORSAllowAllOrigins = true
 var CORSAllowedMethods = []string{"POST", "GET", "PUT", "OPTIONS"}
-var CORSAllowedHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma"}
+var CORSAllowedHeaders = []string{"Origin", "Content-Type", "Authorization", "Accept", "User-Agent", "Cache-Control", "Pragma", "Set-Cookie"}
 var CORSExposedHeaders = []string{"Content-Length"}
 var CORSAllowCredentials = true
 var CORSMaxAge = 12

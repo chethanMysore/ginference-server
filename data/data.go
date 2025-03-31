@@ -16,9 +16,9 @@ import (
 )
 
 var RegisteredUsers = user.Users{
-	{UserID: uuid.New(), UserName: "Tom", CreatedAt: time.Now(), ModifiedAt: time.Now()},
-	{UserID: uuid.New(), UserName: "Joe", CreatedAt: time.Now(), ModifiedAt: time.Now()},
-	{UserID: uuid.New(), UserName: "Harry", CreatedAt: time.Now(), ModifiedAt: time.Now()},
+	{UserID: uuid.New(), Username: "Tom", CreatedAt: time.Now(), ModifiedAt: time.Now()},
+	{UserID: uuid.New(), Username: "Joe", CreatedAt: time.Now(), ModifiedAt: time.Now()},
+	{UserID: uuid.New(), Username: "Harry", CreatedAt: time.Now(), ModifiedAt: time.Now()},
 }
 
 var user1, _ = RegisteredUsers.FindByName("Tom")
