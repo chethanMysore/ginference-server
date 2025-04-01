@@ -86,7 +86,9 @@ func Register(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, usr)
+	c.IndentedJSON(http.StatusCreated, struct {
+		User user.User `json:"user"`
+	}{User: usr})
 }
 
 // @BasePath /api/v1

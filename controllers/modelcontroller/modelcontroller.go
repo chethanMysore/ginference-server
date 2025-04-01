@@ -42,7 +42,9 @@ func GetAllModels(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, subscribedModels.ErrEmptyList().Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, subscribedModels)
+	c.IndentedJSON(http.StatusOK, struct {
+		Models model.AIModels `json:"models"`
+	}{Models: subscribedModels})
 }
 
 // @BasePath /api/v1
@@ -86,7 +88,9 @@ func GetModelByID(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, mod)
+	c.IndentedJSON(http.StatusOK, struct {
+		Model model.AIModel `json:"model"`
+	}{Model: mod})
 }
 
 // @BasePath /api/v1
@@ -121,7 +125,9 @@ func GetModelByName(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, subscribedModels.ErrNotFound(modelName).Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, subscribedModels)
+	c.IndentedJSON(http.StatusOK, struct {
+		Models model.AIModels `json:"models"`
+	}{Models: subscribedModels})
 }
 
 // @BasePath /api/v1
@@ -171,7 +177,9 @@ func GetModelsByUsername(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, subscribedModels.ErrNotFound(userName).Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, subscribedModels)
+	c.IndentedJSON(http.StatusOK, struct {
+		Models model.AIModels `json:"models"`
+	}{Models: subscribedModels})
 }
 
 // @BasePath /api/v1
@@ -220,7 +228,9 @@ func CreateNewModel(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, mod)
+	c.IndentedJSON(http.StatusCreated, struct {
+		Model model.AIModel `json:"model"`
+	}{Model: mod})
 }
 
 // @BasePath /api/v1
@@ -266,5 +276,7 @@ func EditModel(c *gin.Context) {
 		c.IndentedJSON(http.StatusConflict, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, mod)
+	c.IndentedJSON(http.StatusOK, struct {
+		Model model.AIModel `json:"model"`
+	}{Model: mod})
 }

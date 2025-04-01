@@ -49,7 +49,9 @@ func GetAllUsers(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, registeredUsers.ErrEmptyList().Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, registeredUsers)
+	c.IndentedJSON(http.StatusOK, struct {
+		Users user.Users `json:"users"`
+	}{Users: registeredUsers})
 }
 
 // @BasePath /api/v1
@@ -93,7 +95,9 @@ func GetUserByID(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, usr)
+	c.IndentedJSON(http.StatusOK, struct {
+		User user.User `json:"user"`
+	}{User: usr})
 }
 
 // @BasePath /api/v1
@@ -128,7 +132,9 @@ func GetUserByName(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, registeredUsers.ErrNotFound(name).Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, registeredUsers)
+	c.IndentedJSON(http.StatusOK, struct {
+		Users user.Users `json:"users"`
+	}{Users: registeredUsers})
 }
 
 // @BasePath /api/v1
@@ -168,7 +174,9 @@ func GetUserByUserName(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, usr)
+	c.IndentedJSON(http.StatusOK, struct {
+		User user.User `json:"user"`
+	}{User: usr})
 }
 
 // @BasePath /api/v1
@@ -208,7 +216,7 @@ func GetUserRoleByID(c *gin.Context) {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, usr.Role)
+	c.String(http.StatusOK, usr.Role)
 }
 
 func CreateNewUser(c *gin.Context) {
@@ -244,7 +252,9 @@ func CreateNewUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, usr)
+	c.IndentedJSON(http.StatusCreated, struct {
+		User user.User `json:"user"`
+	}{User: usr})
 }
 
 // @BasePath /api/v1
@@ -295,5 +305,7 @@ func EditUser(c *gin.Context) {
 		c.IndentedJSON(http.StatusConflict, err.Error())
 		return
 	}
-	c.IndentedJSON(http.StatusOK, usr)
+	c.IndentedJSON(http.StatusOK, struct {
+		User user.User `json:"user"`
+	}{User: usr})
 }
