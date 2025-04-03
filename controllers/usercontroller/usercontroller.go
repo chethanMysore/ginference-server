@@ -219,6 +219,35 @@ func GetUserRoleByID(c *gin.Context) {
 	c.String(http.StatusOK, usr.Role)
 }
 
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary Get authorized user details by userID in access_token
+// @Schemes
+// @Description Find the user role created with the given username
+// @Tags Users
+// @Security ApiKeyAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} user.User
+// @Router /users/auth/user [get]
+func GetAuthUser(c *gin.Context) {
+	authUser, ok := c.Get("authUser")
+	if ok {
+		usr, assertion := authUser.(user.User)
+		if assertion {
+			c.IndentedJSON(http.StatusOK, struct {
+				User user.User `json:"user"`
+			}{User: usr})
+			return
+		}
+	} else {
+		c.String(http.StatusInternalServerError, "authUser not Found in JWT token")
+		c.Abort()
+		return
+	}
+}
+
 func CreateNewUser(c *gin.Context) {
 	var newUser user.UserCreate
 	if err := c.BindJSON(&newUser); err != nil {

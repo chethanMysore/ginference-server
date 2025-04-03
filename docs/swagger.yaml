@@ -383,6 +383,23 @@ paths:
       summary: Search user role by userID
       tags:
       - Users
+  /users/auth/user:
+    get:
+      consumes:
+      - application/json
+      description: Find the user role created with the given username
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.User'
+      security:
+      - ApiKeyAuth: []
+      summary: Get authorized user details by userID in access_token
+      tags:
+      - Users
   /users/edit:
     put:
       consumes:

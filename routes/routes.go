@@ -46,6 +46,7 @@ func Init() *gin.Engine {
 			usr.GET("/name/:name", usercontroller.GetUserByName)
 			usr.GET("/username/:username", usercontroller.GetUserByUserName)
 			usr.GET("/auth/id/:id", usercontroller.GetUserRoleByID)
+			usr.GET("/auth/user", usercontroller.GetAuthUser)
 			usr.PUT("/edit", usercontroller.EditUser)
 		}
 		// Model routes '/models*'
