@@ -41,7 +41,7 @@ func Init() *gin.Engine {
 		// User routes '/users*'
 		usr := v1.Group("/users")
 		{
-			usr.GET("/", usercontroller.GetAllUsers)
+			usr.GET("/all", usercontroller.GetAllUsers)
 			usr.GET("/id/:id", usercontroller.GetUserByID)
 			usr.GET("/name/:name", usercontroller.GetUserByName)
 			usr.GET("/username/:username", usercontroller.GetUserByUserName)
@@ -52,7 +52,7 @@ func Init() *gin.Engine {
 		// Model routes '/models*'
 		mod := v1.Group("/models")
 		{
-			mod.GET("/", modelcontroller.GetAllModels)
+			mod.GET("/all", modelcontroller.GetAllModels)
 			mod.GET("/id/:id", modelcontroller.GetModelByID)
 			mod.GET("/name/:name", modelcontroller.GetModelByName)
 			mod.GET("/username/:username", modelcontroller.GetModelsByUsername)
@@ -60,6 +60,7 @@ func Init() *gin.Engine {
 			mod.PUT("/edit", modelcontroller.EditModel)
 		}
 	}
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router
